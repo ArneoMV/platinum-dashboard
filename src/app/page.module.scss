@@ -1,0 +1,35 @@
+@use "../styles/mixins" as *;
+
+.main {
+  padding-top: var(--header-h);
+  padding-bottom: var(--space-16);
+}
+
+.pageHead {
+  padding-block: var(--space-8) var(--space-6);
+}
+
+.title {
+  font-size: var(--text-2xl);
+}
+
+.subtitle {
+  margin-top: var(--space-2);
+  color: var(--ink-500);
+  font-size: var(--text-sm);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+
+  @include mq-md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.soon {
+  color: var(--ink-300);
+  font-size: var(--text-sm);
+}

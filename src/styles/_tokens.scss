@@ -1,0 +1,30 @@
+:root {
+  /* color */
+  --bg: #ffffff;
+  --surface: #fafaf9;
+  --line: #e7e4e0;
+  --ink-900: #141414;
+  --ink-700: #3d3a37;
+  --ink-500: #6b6764;
+  --ink-300: #a8a4a0;
+  --accent: #7c1d2e;        /* claret */
+  --accent-soft: #f4eaec;
+  --rust: #b5532a;          /* attention / za kontakt */
+  --sage: #5e7355;          /* positive / aktivno */
+
+  /* type (font vars set on <body> via next/font) */
+  --font-serif: var(--font-pt-serif), Georgia, serif;
+  --font-sans:  var(--font-open-sans), system-ui, sans-serif;
+  --text-xs: .75rem; --text-sm: .8125rem; --text-base: .9375rem;
+  --text-lg: 1.125rem; --text-xl: 1.625rem; --text-2xl: 2.25rem;
+
+  /* spacing (named to avoid any tooling clash) */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+
+  /* radius + elevation */
+  --radius-sm: 4px; --radius: 8px; --radius-lg: 14px;
+  --shadow-card: 0 1px 2px rgba(20,20,20,.04), 0 1px 3px rgba(20,20,20,.05);
+  --header-h: 64px;
+  --maxw: 1200px;
+}

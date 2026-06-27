@@ -1,0 +1,26 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  line-height: 1;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+.neutral {
+  color: var(--ink-700);
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+.attention {
+  color: var(--rust);
+  background: color-mix(in srgb, var(--rust) 12%, #fff);
+}
+
+.positive {
+  color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 14%, #fff);
+}
