@@ -33,3 +33,17 @@
   color: var(--ink-300);
   font-size: var(--text-sm);
 }
+
+.kpiCardFull {
+  grid-column: 1 / -1;
+}
+
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+
+  @include mq-md {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

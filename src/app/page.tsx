@@ -1,17 +1,33 @@
 import DashboardHeader from "@/components/organisms/DashboardHeader/DashboardHeader";
 import Container from "@/components/atoms/Container/Container";
 import Card from "@/components/atoms/Card/Card";
+import KpiCard from "@/components/molecules/KpiCard/KpiCard";
+import { getBaza } from "@/lib/data";
+import {
+  prihodTekuciMjesec,
+  brojNarudzbiTekuciMjesec,
+  prosjekNarudzbeMjesec,
+  klijentiZaKontakt,
+} from "@/lib/metrics";
 import styles from "./page.module.scss";
 
-const sections = [
-  "Ključni pokazatelji",
-  "Za kontakt",
-  "Prihod",
-  "Katalog",
-  "Zadnje narudžbe",
-];
+const placeholderSections = ["Za kontakt", "Prihod", "Katalog", "Zadnje narudžbe"];
 
-export default function Home() {
+const eur = new Intl.NumberFormat("hr-HR", {
+  style: "currency",
+  currency: "EUR",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+export default async function Home() {
+  const { Klijenti, Narudzbe } = await getBaza();
+
+  const prihod = prihodTekuciMjesec(Narudzbe);
+  const broj = brojNarudzbiTekuciMjesec(Narudzbe);
+  const prosjek = prosjekNarudzbeMjesec(Narudzbe);
+  const zaKontakt = klijentiZaKontakt(Klijenti, Narudzbe).length;
+
   return (
     <>
       <DashboardHeader company="Platinum d.o.o." />
@@ -24,7 +40,20 @@ export default function Home() {
           </div>
 
           <div className={styles.grid}>
-            {sections.map((section) => (
+            <Card title="Ključni pokazatelji" className={styles.kpiCardFull}>
+              <div className={styles.kpiRow}>
+                <KpiCard label="Prihod (mjesec)" value={eur.format(prihod)} />
+                <KpiCard label="Narudžbe (mjesec)" value={String(broj)} />
+                <KpiCard label="Prosjek narudžbe" value={eur.format(prosjek)} />
+                <KpiCard
+                  label="Klijenti za kontakt"
+                  value={String(zaKontakt)}
+                  tone="attention"
+                />
+              </div>
+            </Card>
+
+            {placeholderSections.map((section) => (
               <Card key={section} title={section}>
                 <p className={styles.soon}>uskoro</p>
               </Card>
