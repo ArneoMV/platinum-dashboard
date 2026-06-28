@@ -2,6 +2,7 @@ import DashboardHeader from "@/components/organisms/DashboardHeader/DashboardHea
 import Container from "@/components/atoms/Container/Container";
 import Card from "@/components/atoms/Card/Card";
 import KpiCard from "@/components/molecules/KpiCard/KpiCard";
+import ZaKontakt from "@/components/organisms/ZaKontakt/ZaKontakt";
 import { getBaza } from "@/lib/data";
 import {
   prihodTekuciMjesec,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/metrics";
 import styles from "./page.module.scss";
 
-const placeholderSections = ["Za kontakt", "Prihod", "Katalog", "Zadnje narudžbe"];
+const placeholderSections = ["Prihod", "Katalog", "Zadnje narudžbe"];
 
 const eur = new Intl.NumberFormat("hr-HR", {
   style: "currency",
@@ -26,7 +27,7 @@ export default async function Home() {
   const prihod = prihodTekuciMjesec(Narudzbe);
   const broj = brojNarudzbiTekuciMjesec(Narudzbe);
   const prosjek = prosjekNarudzbeMjesec(Narudzbe);
-  const zaKontakt = klijentiZaKontakt(Klijenti, Narudzbe).length;
+  const zaKontaktKlijenti = klijentiZaKontakt(Klijenti, Narudzbe, 45);
 
   return (
     <>
@@ -47,10 +48,14 @@ export default async function Home() {
                 <KpiCard label="Prosjek narudžbe" value={eur.format(prosjek)} />
                 <KpiCard
                   label="Klijenti za kontakt"
-                  value={String(zaKontakt)}
+                  value={String(zaKontaktKlijenti.length)}
                   tone="attention"
                 />
               </div>
+            </Card>
+
+            <Card title="Za kontakt">
+              <ZaKontakt clients={zaKontaktKlijenti} />
             </Card>
 
             {placeholderSections.map((section) => (

@@ -1,0 +1,64 @@
+.brojac {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-500);
+}
+
+.lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--line);
+  transition: opacity 120ms ease;
+}
+
+.row:first-child {
+  border-top: none;
+}
+
+.poslano {
+  opacity: 0.5;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.naziv {
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--ink-500);
+}
+
+.akcije {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.poslanoOznaka {
+  font-size: var(--text-sm);
+  color: var(--sage);
+  white-space: nowrap;
+}
+
+.prazno {
+  color: var(--ink-500);
+  font-size: var(--text-sm);
+}
