@@ -3,16 +3,19 @@ import Container from "@/components/atoms/Container/Container";
 import Card from "@/components/atoms/Card/Card";
 import KpiCard from "@/components/molecules/KpiCard/KpiCard";
 import ZaKontakt from "@/components/organisms/ZaKontakt/ZaKontakt";
+import Prihod from "@/components/organisms/Prihod/Prihod";
 import { getBaza } from "@/lib/data";
 import {
   prihodTekuciMjesec,
   brojNarudzbiTekuciMjesec,
   prosjekNarudzbeMjesec,
   klijentiZaKontakt,
+  prihodPoMjesecima,
+  prihodPoRegiji,
 } from "@/lib/metrics";
 import styles from "./page.module.scss";
 
-const placeholderSections = ["Prihod", "Katalog", "Zadnje narudžbe"];
+const placeholderSections = ["Katalog", "Zadnje narudžbe"];
 
 const eur = new Intl.NumberFormat("hr-HR", {
   style: "currency",
@@ -28,6 +31,8 @@ export default async function Home() {
   const broj = brojNarudzbiTekuciMjesec(Narudzbe);
   const prosjek = prosjekNarudzbeMjesec(Narudzbe);
   const zaKontaktKlijenti = klijentiZaKontakt(Klijenti, Narudzbe, 45);
+  const mjeseci = prihodPoMjesecima(Narudzbe, 6);
+  const regije = prihodPoRegiji(Narudzbe, Klijenti);
 
   return (
     <>
@@ -56,6 +61,10 @@ export default async function Home() {
 
             <Card title="Za kontakt">
               <ZaKontakt clients={zaKontaktKlijenti} />
+            </Card>
+
+            <Card title="Prihod">
+              <Prihod mjeseci={mjeseci} regije={regije} />
             </Card>
 
             {placeholderSections.map((section) => (
