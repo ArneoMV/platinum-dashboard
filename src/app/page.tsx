@@ -5,6 +5,7 @@ import KpiCard from "@/components/molecules/KpiCard/KpiCard";
 import ZaKontakt from "@/components/organisms/ZaKontakt/ZaKontakt";
 import Prihod from "@/components/organisms/Prihod/Prihod";
 import Katalog from "@/components/organisms/Katalog/Katalog";
+import ZadnjeNarudzbe from "@/components/organisms/ZadnjeNarudzbe/ZadnjeNarudzbe";
 import { getBaza } from "@/lib/data";
 import {
   prihodTekuciMjesec,
@@ -16,8 +17,6 @@ import {
   marzaPoKategoriji,
 } from "@/lib/metrics";
 import styles from "./page.module.scss";
-
-const placeholderSections = ["Zadnje narudžbe"];
 
 const eur = new Intl.NumberFormat("hr-HR", {
   style: "currency",
@@ -74,11 +73,9 @@ export default async function Home() {
               <Katalog kategorije={kategorije} />
             </Card>
 
-            {placeholderSections.map((section) => (
-              <Card key={section} title={section}>
-                <p className={styles.soon}>uskoro</p>
-              </Card>
-            ))}
+            <Card title="Zadnje narudžbe">
+              <ZadnjeNarudzbe narudzbe={Narudzbe} />
+            </Card>
           </div>
         </Container>
       </main>
