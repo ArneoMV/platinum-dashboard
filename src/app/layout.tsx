@@ -27,10 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="hr">
-      <body className={`${ptSerif.variable} ${openSans.variable}`}>
-        {children}
-      </body>
+    <html lang="hr" className={`${ptSerif.variable} ${openSans.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }
