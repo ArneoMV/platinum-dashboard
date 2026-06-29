@@ -1,6 +1,7 @@
 import DashboardHeader from "@/components/organisms/DashboardHeader/DashboardHeader";
 import Container from "@/components/atoms/Container/Container";
 import Card from "@/components/atoms/Card/Card";
+import SyncBar from "@/components/molecules/SyncBar/SyncBar";
 import KpiCard from "@/components/molecules/KpiCard/KpiCard";
 import ZaKontakt from "@/components/organisms/ZaKontakt/ZaKontakt";
 import Prihod from "@/components/organisms/Prihod/Prihod";
@@ -42,6 +43,10 @@ export default async function Home() {
 
       <main className={styles.main}>
         <Container>
+          <div className={styles.syncWrap}>
+            <SyncBar />
+          </div>
+
           <div className={styles.pageHead}>
             <h1 className={styles.title}>Pregled</h1>
             <p className={styles.subtitle}>Platinum vina · interni pregled</p>
@@ -61,19 +66,19 @@ export default async function Home() {
               </div>
             </Card>
 
-            <Card title="Za kontakt">
+            <Card title="Za kontakt" eyebrow="Auto-podsjetnik">
               <ZaKontakt clients={zaKontaktKlijenti} />
             </Card>
 
-            <Card title="Prihod">
+            <Card title="Prihod" eyebrow="Zadnjih 6 mjeseci">
               <Prihod mjeseci={mjeseci} regije={regije} />
             </Card>
 
-            <Card title="Katalog">
+            <Card title="Katalog" eyebrow="Po marži">
               <Katalog kategorije={kategorije} />
             </Card>
 
-            <Card title="Zadnje narudžbe">
+            <Card title="Zadnje narudžbe" eyebrow="Uživo">
               <ZadnjeNarudzbe narudzbe={Narudzbe} />
             </Card>
           </div>

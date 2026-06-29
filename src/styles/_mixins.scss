@@ -10,3 +10,13 @@
     @content;
   }
 }
+
+// Editorial eyebrow label (claret, uppercase, wide tracking).
+@mixin eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}

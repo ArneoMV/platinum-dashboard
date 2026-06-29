@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -6,7 +8,20 @@
   padding: var(--space-6);
 }
 
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
 .title {
   font-size: var(--text-lg);
-  margin-bottom: var(--space-3);
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin-left: auto;
+  white-space: nowrap;
 }
