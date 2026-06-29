@@ -4,14 +4,14 @@ import "./globals.scss";
 
 const ptSerif = PT_Serif({
   variable: "--font-pt-serif",
-  weight: ["400", "700"],
+  weight: ["400"],
   subsets: ["latin", "latin-ext"],
   display: "swap",
 });
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
-  weight: ["400", "600"],
+  weight: ["400", "600", "700"],
   subsets: ["latin", "latin-ext"],
   display: "swap",
 });

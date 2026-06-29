@@ -1,12 +1,14 @@
+@use "../../../styles/mixins" as *;
+
 .wrap {
   width: 100%;
   overflow-x: auto;
 }
 
 .table {
+  @include body-medium-regular;
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--text-sm);
 }
 
 .table th,
@@ -22,16 +24,15 @@
 }
 
 .thButton {
+  @include heading-xxs;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
   padding: 0;
   border: none;
   background: transparent;
-  font: inherit;
-  font-size: var(--text-xs);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   color: var(--ink-500);
   cursor: pointer;
 }
@@ -58,6 +59,6 @@
 }
 
 .prazno {
+  @include body-medium-regular;
   color: var(--ink-500);
-  font-size: var(--text-sm);
 }

@@ -1,6 +1,8 @@
+@use "../../../styles/mixins" as *;
+
 .brojac {
+  @include body-medium-regular;
   margin-bottom: var(--space-4);
-  font-size: var(--text-sm);
   color: var(--ink-500);
 }
 
@@ -36,12 +38,12 @@
 }
 
 .naziv {
-  font-weight: 600;
+  @include body-medium-semibold;
   color: var(--ink-900);
 }
 
 .meta {
-  font-size: var(--text-sm);
+  @include body-medium-regular;
   color: var(--ink-500);
 }
 
@@ -53,12 +55,12 @@
 }
 
 .poslanoOznaka {
-  font-size: var(--text-sm);
+  @include body-medium-semibold;
   color: var(--sage);
   white-space: nowrap;
 }
 
 .prazno {
+  @include body-medium-regular;
   color: var(--ink-500);
-  font-size: var(--text-sm);
 }

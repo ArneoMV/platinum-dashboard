@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .kpi {
   display: flex;
   flex-direction: column;
@@ -7,15 +9,14 @@
 }
 
 .label {
-  font-size: var(--text-xs);
+  @include heading-xxs;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--ink-500);
 }
 
 .value {
-  font-size: var(--text-2xl);
-  line-height: 1.1;
+  @include heading-l;
   color: var(--ink-900);
 }
 

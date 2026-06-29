@@ -15,8 +15,20 @@
   /* type (font vars set on <body> via next/font) */
   --font-serif: var(--font-pt-serif), Georgia, serif;
   --font-sans:  var(--font-open-sans), system-ui, sans-serif;
+
+  /* Headline — PT Serif 400 */
+  --h-xxl: 87px; --h-xl: 65px; --h-l: 49px; --h-m: 37px;
+  --h-s: 28px;  --h-xs: 21px; --h-xxs: 18px;
+
+  /* Heading — Open Sans 600 */
+  --hd-xxl: 48px; --hd-xl: 38px; --hd-l: 30px; --hd-m: 24px;
+  --hd-s: 19px;   --hd-xs: 15px; --hd-xxs: 12px;
+
+  /* Body — Open Sans */
+  --body-big: 18px; --body-medium: 14px;
+
+  /* deprecated ad-hoc scale — kept as aliases for not-yet-migrated atoms */
   --text-xs: .75rem; --text-sm: .8125rem; --text-base: .9375rem;
-  --text-lg: 1.125rem; --text-xl: 1.625rem; --text-2xl: 2.25rem;
 
   /* spacing (named to avoid any tooling clash) */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;

@@ -14,13 +14,13 @@
 }
 
 .title {
-  font-size: var(--text-2xl);
+  @include headline-m;
 }
 
 .subtitle {
+  @include body-medium-regular;
   margin-top: var(--space-2);
   color: var(--ink-500);
-  font-size: var(--text-sm);
 }
 
 .grid {

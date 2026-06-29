@@ -1,6 +1,18 @@
 @use "../styles/tokens";
 @use "../styles/reset";
-body { font-family: var(--font-sans); background: var(--bg); color: var(--ink-900);
-       font-size: var(--text-base); line-height: 1.5; }
-h1,h2,h3 { font-family: var(--font-serif); font-weight: 600; line-height: 1.15; }
-.num { font-family: var(--font-serif); font-variant-numeric: tabular-nums; }
+@use "../styles/mixins" as *;
+
+body {
+  @include body-medium-regular;
+  background: var(--bg);
+  color: var(--ink-900);
+}
+
+h1 { @include headline-s; }
+h2 { @include headline-xs; }
+h3 { @include headline-xxs; }
+
+.num {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}

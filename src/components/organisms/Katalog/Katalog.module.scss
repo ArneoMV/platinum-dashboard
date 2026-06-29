@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .lista {
   list-style: none;
   display: flex;
@@ -22,22 +24,21 @@
 }
 
 .naziv {
-  font-size: var(--text-sm);
+  @include body-medium-regular;
   color: var(--ink-700);
 }
 
 .broj {
-  font-size: var(--text-xs);
+  @include body-medium-regular;
   color: var(--ink-500);
   white-space: nowrap;
 }
 
 .pct {
+  @include body-medium-regular;
   grid-column: 2;
-  font-size: var(--text-sm);
   color: var(--ink-900);
   text-align: right;
-  font-variant-numeric: tabular-nums;
 }
 
 .traka {
@@ -57,6 +58,6 @@
 }
 
 .prazno {
+  @include body-medium-regular;
   color: var(--ink-500);
-  font-size: var(--text-sm);
 }

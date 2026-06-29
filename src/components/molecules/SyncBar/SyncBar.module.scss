@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .syncBar {
   display: inline-flex;
   align-items: center;
@@ -17,6 +19,6 @@
 }
 
 .text {
-  font-size: var(--text-xs);
+  @include body-medium-regular;
   color: var(--ink-500);
 }

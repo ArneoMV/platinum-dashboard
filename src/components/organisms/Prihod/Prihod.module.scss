@@ -1,7 +1,9 @@
+@use "../../../styles/mixins" as *;
+
 .prihod {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-8);
 }
 
 .blok {
@@ -11,11 +13,9 @@
 }
 
 .podnaslov {
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  font-weight: 600;
+  @include heading-xxs;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--ink-500);
 }
 
@@ -40,7 +40,7 @@
 }
 
 .regijaNaziv {
-  font-size: var(--text-sm);
+  @include body-medium-regular;
   color: var(--ink-700);
 }
 
@@ -60,13 +60,12 @@
 }
 
 .regijaIznos {
-  font-size: var(--text-sm);
+  @include body-medium-regular;
   color: var(--ink-900);
   text-align: right;
-  font-variant-numeric: tabular-nums;
 }
 
 .prazno {
+  @include body-medium-regular;
   color: var(--ink-500);
-  font-size: var(--text-sm);
 }

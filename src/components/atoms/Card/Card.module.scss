@@ -17,7 +17,7 @@
 }
 
 .title {
-  font-size: var(--text-lg);
+  @include headline-xs;
 }
 
 .eyebrow {
