@@ -4,6 +4,7 @@ import Card from "@/components/atoms/Card/Card";
 import KpiCard from "@/components/molecules/KpiCard/KpiCard";
 import ZaKontakt from "@/components/organisms/ZaKontakt/ZaKontakt";
 import Prihod from "@/components/organisms/Prihod/Prihod";
+import Katalog from "@/components/organisms/Katalog/Katalog";
 import { getBaza } from "@/lib/data";
 import {
   prihodTekuciMjesec,
@@ -12,10 +13,11 @@ import {
   klijentiZaKontakt,
   prihodPoMjesecima,
   prihodPoRegiji,
+  marzaPoKategoriji,
 } from "@/lib/metrics";
 import styles from "./page.module.scss";
 
-const placeholderSections = ["Katalog", "Zadnje narudžbe"];
+const placeholderSections = ["Zadnje narudžbe"];
 
 const eur = new Intl.NumberFormat("hr-HR", {
   style: "currency",
@@ -25,7 +27,7 @@ const eur = new Intl.NumberFormat("hr-HR", {
 });
 
 export default async function Home() {
-  const { Klijenti, Narudzbe } = await getBaza();
+  const { Klijenti, Vina, Narudzbe } = await getBaza();
 
   const prihod = prihodTekuciMjesec(Narudzbe);
   const broj = brojNarudzbiTekuciMjesec(Narudzbe);
@@ -33,6 +35,7 @@ export default async function Home() {
   const zaKontaktKlijenti = klijentiZaKontakt(Klijenti, Narudzbe, 45);
   const mjeseci = prihodPoMjesecima(Narudzbe, 6);
   const regije = prihodPoRegiji(Narudzbe, Klijenti);
+  const kategorije = marzaPoKategoriji(Vina);
 
   return (
     <>
@@ -65,6 +68,10 @@ export default async function Home() {
 
             <Card title="Prihod">
               <Prihod mjeseci={mjeseci} regije={regije} />
+            </Card>
+
+            <Card title="Katalog">
+              <Katalog kategorije={kategorije} />
             </Card>
 
             {placeholderSections.map((section) => (
