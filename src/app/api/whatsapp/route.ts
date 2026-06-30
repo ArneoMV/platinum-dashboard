@@ -101,7 +101,7 @@ export async function POST(request: Request) {
 
     const narudzba: Narudzba = {
       id: `w-${Date.now()}`,
-      datum: localToday(),
+      datum: zagrebToday(),
       klijent_id: "",
       klijent_naziv: order.klijent_naziv,
       stavke: order.stavke ?? 0,
@@ -134,12 +134,15 @@ function ok(): Response {
   return new Response("OK", { status: 200 });
 }
 
-function localToday(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+// Pin to Zagreb local date (en-CA formats as YYYY-MM-DD) so it matches the
+// dashboard's local-time bucketing regardless of server timezone (Vercel = UTC).
+function zagrebToday(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Zagreb",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 function stripFences(s: string): string {
@@ -234,8 +237,8 @@ async function writeNarudzba(narudzba: Narudzba): Promise<boolean> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token, narudzba }),
     });
+    const detail = await res.text();
     if (!res.ok) {
-      const detail = await res.text();
       console.error(
         "[whatsapp] Apps Script write failed:",
         res.status,
@@ -244,7 +247,26 @@ async function writeNarudzba(narudzba: Narudzba): Promise<boolean> {
       );
       return false;
     }
-    return true;
+
+    // Success requires a real app-level confirmation ({ ok: true }), not just
+    // HTTP 200 — a 200 with ok:false or a non-JSON body is treated as failure.
+    try {
+      const json = JSON.parse(detail) as { ok?: boolean };
+      if (json.ok === true) {
+        return true;
+      }
+      console.error(
+        "[whatsapp] Apps Script returned ok!==true:",
+        detail.slice(0, 200),
+      );
+      return false;
+    } catch {
+      console.error(
+        "[whatsapp] Apps Script response not JSON:",
+        detail.slice(0, 200),
+      );
+      return false;
+    }
   } catch (err) {
     console.error("[whatsapp] Apps Script write error:", err);
     return false;
