@@ -1,14 +1,56 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { NextRequest } from "next/server";
 
-import type { Narudzba } from "@/lib/types";
-
 // Webhook must never be statically optimized: it reads request data and has side effects.
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+// --- Fixed-option value sets (canonical forms) ------------------------------
 const KANALI = ["mail", "telefon", "webshop", "osobno"] as const;
-type Kanal = (typeof KANALI)[number];
+const STATUSI = ["aktivan", "za_kontakt"] as const;
+const KATEGORIJE = [
+  "Velika pakiranja",
+  "Atraktivne sorte",
+  "Vranac",
+  "Vrhunska Hrvatska vina",
+  "Vintonic",
+] as const;
+const PAKIRANJA = ["2 L", "1 L", "0.75 L", "3 L (bag-in-box)"] as const;
+
+type Tip = "narudzba" | "klijent" | "vino";
+
+// Per-type field spec: which keys are strings, which are numbers, which are
+// fixed-option enums (and their allowed canonical values).
+type Spec = {
+  strings: readonly string[];
+  numbers: readonly string[];
+  enums: Readonly<Record<string, readonly string[]>>;
+};
+
+const SPECS: Record<Tip, Spec> = {
+  narudzba: {
+    strings: ["klijent_naziv"],
+    numbers: ["iznos", "stavke"],
+    enums: { kanal: KANALI },
+  },
+  klijent: {
+    strings: [
+      "naziv",
+      "grad",
+      "regija",
+      "email",
+      "kontakt_osoba",
+      "uobicajena_narudzba",
+    ],
+    numbers: [],
+    enums: { status: STATUSI },
+  },
+  vino: {
+    strings: ["naziv", "sorta", "porijeklo"],
+    numbers: ["alkohol", "prodajna_cijena", "nabavna_cijena", "zaliha"],
+    enums: { kategorija: KATEGORIJE, pakiranje: PAKIRANJA },
+  },
+};
 
 // --- WhatsApp Cloud API webhook payload (only the parts we read) ---
 type WhatsAppWebhook = {
@@ -25,11 +67,13 @@ type WhatsAppWebhook = {
   }>;
 };
 
-type ParsedOrder = {
-  klijent_naziv: string | null;
-  iznos: number | null;
-  stavke: number | null;
-  kanal: Kanal | null;
+type Classified = { tip: Tip; podaci: Record<string, string | number> };
+
+type DoPostResult = {
+  ok?: boolean;
+  id?: string;
+  upisano?: Record<string, unknown>;
+  error?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -88,34 +132,30 @@ export async function POST(request: Request) {
       return ok();
     }
 
-    const order = await parseOrder(text);
-
-    // Hard requirements for a usable order row.
-    if (!order.klijent_naziv || order.iznos === null) {
+    const result = await classifyAndExtract(text);
+    if (!result) {
       await sendWhatsApp(
         from,
-        "Nedostaju podaci za narudžbu. Molim navedite barem naziv klijenta i iznos (€).",
+        "Nisam uspio razumjeti poruku. Primjer: „N Restoran More, 1200 €, 3 stavke, telefon\".",
       );
       return ok();
     }
 
-    const narudzba: Narudzba = {
-      id: `w-${Date.now()}`,
-      datum: zagrebToday(),
-      klijent_id: "",
-      klijent_naziv: order.klijent_naziv,
-      stavke: order.stavke ?? 0,
-      iznos: order.iznos,
-      kanal: order.kanal ?? "",
-    };
+    const { tip, podaci } = result;
 
-    const written = await writeNarudzba(narudzba);
+    // Minimum required fields per type — if unmet, ask and don't write.
+    const missing = missingMessage(tip, podaci);
+    if (missing) {
+      await sendWhatsApp(from, missing);
+      return ok();
+    }
 
-    if (written) {
-      await sendWhatsApp(
-        from,
-        `Zapisano ✓ ${narudzba.klijent_naziv} · ${narudzba.stavke} stavki · ${narudzba.iznos} € · ${narudzba.kanal || "—"}`,
-      );
+    const res = await writeToSheet(tip, podaci);
+
+    if (res && res.ok === true) {
+      // Use the id + echoed data doPost returns (webhook no longer owns them).
+      const data: Record<string, unknown> = { ...podaci, ...(res.upisano ?? {}) };
+      await sendWhatsApp(from, confirmation(tip, res.id ?? "", data));
     } else {
       await sendWhatsApp(from, "Greška pri spremanju. Pokušajte ponovno.");
     }
@@ -134,15 +174,8 @@ function ok(): Response {
   return new Response("OK", { status: 200 });
 }
 
-// Pin to Zagreb local date (en-CA formats as YYYY-MM-DD) so it matches the
-// dashboard's local-time bucketing regardless of server timezone (Vercel = UTC).
-function zagrebToday(): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Zagreb",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
+function str(v: unknown): string {
+  return v === null || v === undefined ? "" : String(v);
 }
 
 function stripFences(s: string): string {
@@ -156,86 +189,183 @@ function stripFences(s: string): string {
   return t;
 }
 
-async function parseOrder(text: string): Promise<ParsedOrder> {
-  const empty: ParsedOrder = {
-    klijent_naziv: null,
-    iznos: null,
-    stavke: null,
-    kanal: null,
-  };
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-  const system = `Ti si asistent za unos narudžbi za hrvatskog distributera vina (Platinum vina).
-Iz korisnikove poruke na hrvatskom izvuci JEDNU narudžbu i vrati ISKLJUČIVO JSON objekt — bez ikakvog teksta, bez markdown ograda.
-
-Shema (svi ključevi obavezni; koristi null kad vrijednost nedostaje ili je nejasna):
-{
-  "klijent_naziv": string|null,  // naziv klijenta/tvrtke točno kako je napisan
-  "iznos": number|null,          // ukupan iznos narudžbe u EUR, samo brojke (npr. 1250.50)
-  "stavke": number|null,         // broj stavki / različitih artikala u narudžbi
-  "kanal": "mail"|"telefon"|"webshop"|"osobno"|null  // kanal narudžbe
+function missingMessage(
+  tip: Tip,
+  podaci: Record<string, string | number>,
+): string | null {
+  if (tip === "narudzba") {
+    if (typeof podaci.klijent_naziv !== "string" || typeof podaci.iznos !== "number") {
+      return "Nedostaju podaci za narudžbu. Molim navedite barem naziv klijenta i iznos (€).";
+    }
+  } else if (tip === "klijent") {
+    if (typeof podaci.naziv !== "string") {
+      return "Nedostaje naziv klijenta.";
+    }
+  } else {
+    if (typeof podaci.naziv !== "string") {
+      return "Nedostaje naziv vina.";
+    }
+  }
+  return null;
 }
 
-Pravila:
-- Za "iznos" i "stavke" vrati samo broj (bez znaka valute, bez separatora tisućica).
-- "kanal" mora biti točno jedan od: mail, telefon, webshop, osobno. Ako kanal nije naveden ili ne odgovara, koristi null.
-- Ne izmišljaj naziv klijenta; ako nije naveden, koristi null.
-- Izlaz je striktno JSON objekt i ništa drugo.`;
+function confirmation(
+  tip: Tip,
+  id: string,
+  data: Record<string, unknown>,
+): string {
+  const idPart = id || "?";
+  switch (tip) {
+    case "narudzba":
+      return `Zapisano ✓ narudžba ${idPart}: ${str(data.klijent_naziv)} · ${str(data.iznos)} €`;
+    case "klijent":
+      return `Zapisano ✓ klijent ${idPart}: ${str(data.naziv)}`;
+    case "vino":
+      return `Zapisano ✓ vino ${idPart}: ${str(data.naziv)}`;
+  }
+}
 
-  let raw = "";
+// Build a clean podaci object: keep only known keys per type, coerce numbers,
+// validate fixed-options (non-canonical values are dropped and noted), and
+// gather any notes into `biljeska`.
+function sanitize(
+  tip: Tip,
+  raw: Record<string, unknown>,
+): Record<string, string | number> {
+  const spec = SPECS[tip];
+  const out: Record<string, string | number> = {};
+  const notes: string[] = [];
+
+  for (const key of spec.strings) {
+    const v = raw[key];
+    if (typeof v === "string" && v.trim()) {
+      out[key] = v.trim();
+    }
+  }
+
+  for (const key of spec.numbers) {
+    const v = raw[key];
+    // Claude is asked to return clean numbers; string is a defensive fallback.
+    const n =
+      typeof v === "number"
+        ? v
+        : typeof v === "string" && v.trim() !== ""
+          ? Number(v.replace(/[^\d,.-]/g, "").replace(",", "."))
+          : NaN;
+    if (Number.isFinite(n)) {
+      out[key] = n;
+    }
+  }
+
+  for (const key of Object.keys(spec.enums)) {
+    const allowed = spec.enums[key];
+    const v = raw[key];
+    if (typeof v === "string" && allowed.includes(v)) {
+      out[key] = v;
+    } else if (v !== null && v !== undefined && String(v).trim() !== "") {
+      notes.push(`${key}: "${String(v).trim()}" nije u standardnim opcijama`);
+    }
+  }
+
+  const claudeNote = typeof raw.biljeska === "string" ? raw.biljeska.trim() : "";
+  const allNotes = [claudeNote, ...notes].filter(Boolean);
+  if (allNotes.length) {
+    out.biljeska = allNotes.join("; ");
+  }
+
+  // Default status for a client when unclear.
+  if (tip === "klijent" && typeof out.status !== "string") {
+    out.status = "aktivan";
+  }
+
+  return out;
+}
+
+async function classifyAndExtract(text: string): Promise<Classified | null> {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  const system = `Ti si asistent za unos podataka za hrvatskog distributera vina (Platinum vina).
+Klasificiraj korisnikovu poruku u JEDAN tip i izvuci relevantna polja. Vrati ISKLJUČIVO JSON objekt, bez teksta i bez markdown ograda.
+
+Format odgovora:
+{ "tip": "narudzba" | "klijent" | "vino", "podaci": { ... } }
+
+KLASIFIKACIJA:
+- Ako poruka počinje slovom-prefiksom "K", "V" ili "N" (može biti praćeno s ":", "-" ili razmakom), to je jak signal: K = klijent, V = vino, N = narudzba. Ukloni prefiks prije izvlačenja podataka.
+- Inače zaključi tip iz sadržaja poruke.
+
+POLJA PO TIPU (izvuci SAMO polja za klasificirani tip):
+- narudzba: klijent_naziv (string), iznos (number, EUR), stavke (number), kanal
+- klijent:  naziv, grad, regija, email, kontakt_osoba, uobicajena_narudzba, status
+- vino:     naziv, kategorija, sorta, porijeklo, pakiranje, alkohol (number), prodajna_cijena (number), nabavna_cijena (number), zaliha (number)
+
+POLJA S FIKSNIM OPCIJAMA — normaliziraj slobodan tekst na TOČNU dopuštenu vrijednost (prepoznaj varijante, npr. "0,75L", "0.75 litara", "075" → "0.75 L"):
+- kanal (narudzba): mail | telefon | webshop | osobno
+- status (klijent): aktivan | za_kontakt   (ako nije jasno, koristi "aktivan")
+- kategorija (vino): Velika pakiranja | Atraktivne sorte | Vranac | Vrhunska Hrvatska vina | Vintonic
+- pakiranje (vino): 2 L | 1 L | 0.75 L | 3 L (bag-in-box)
+
+PRAVILA:
+- Brojčana polja (iznos, stavke, alkohol, prodajna_cijena, nabavna_cijena, zaliha): vrati samo broj, bez znaka valute i bez separatora tisućica (decimalni zarez pretvori u točku).
+- Ako je vrijednost fiksnog polja jasno prisutna ali NE odgovara nijednoj dopuštenoj opciji, postavi to polje na null I dodaj kratku napomenu u polje "biljeska" (npr. "pakiranje: 5L nije u standardnim opcijama").
+- Sve dodatne informacije koje ne pripadaju strukturiranom polju stavi u "biljeska".
+- Polja koja nedostaju ili su nejasna: null (ili izostavi).
+- Ne izmišljaj vrijednosti.
+- Vrati SAMO JSON objekt.`;
+
   const msg = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 400,
+    max_tokens: 600,
     system,
     messages: [{ role: "user", content: text }],
   });
-  raw = msg.content
+
+  const raw = msg.content
     .map((block) => (block.type === "text" ? block.text : ""))
     .join("")
     .trim();
 
+  let parsed: unknown;
   try {
-    const parsed = JSON.parse(stripFences(raw)) as Partial<ParsedOrder>;
-    const kanal =
-      typeof parsed.kanal === "string" &&
-      (KANALI as readonly string[]).includes(parsed.kanal)
-        ? (parsed.kanal as Kanal)
-        : null;
-    return {
-      klijent_naziv:
-        typeof parsed.klijent_naziv === "string" && parsed.klijent_naziv.trim()
-          ? parsed.klijent_naziv.trim()
-          : null,
-      iznos:
-        typeof parsed.iznos === "number" && Number.isFinite(parsed.iznos)
-          ? parsed.iznos
-          : null,
-      stavke:
-        typeof parsed.stavke === "number" && Number.isFinite(parsed.stavke)
-          ? parsed.stavke
-          : null,
-      kanal,
-    };
+    parsed = JSON.parse(stripFences(raw));
   } catch {
-    return empty;
+    console.error("[whatsapp] classify response not JSON:", raw.slice(0, 200));
+    return null;
   }
+
+  const obj = parsed as { tip?: unknown; podaci?: unknown };
+  const tip = obj.tip;
+  if (tip !== "narudzba" && tip !== "klijent" && tip !== "vino") {
+    console.error("[whatsapp] classify returned unknown tip:", str(tip));
+    return null;
+  }
+
+  const rawPodaci =
+    obj.podaci && typeof obj.podaci === "object"
+      ? (obj.podaci as Record<string, unknown>)
+      : {};
+
+  return { tip, podaci: sanitize(tip, rawPodaci) };
 }
 
-async function writeNarudzba(narudzba: Narudzba): Promise<boolean> {
+async function writeToSheet(
+  tip: Tip,
+  podaci: Record<string, string | number>,
+): Promise<DoPostResult | null> {
   const url = process.env.APPS_SCRIPT_URL;
   const token = process.env.APPS_SCRIPT_TOKEN;
   if (!url || !token) {
     console.error("[whatsapp] missing APPS_SCRIPT_URL or APPS_SCRIPT_TOKEN");
-    return false;
+    return null;
   }
 
   try {
     // Apps Script 302-redirects POST to googleusercontent; fetch follows it.
+    // New contract: { token, tip, podaci } — doPost owns id, datum, klijent_id.
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, narudzba }),
+      body: JSON.stringify({ token, tip, podaci }),
     });
     const detail = await res.text();
     if (!res.ok) {
@@ -245,31 +375,30 @@ async function writeNarudzba(narudzba: Narudzba): Promise<boolean> {
         res.statusText,
         detail.slice(0, 200),
       );
-      return false;
+      return null;
     }
 
     // Success requires a real app-level confirmation ({ ok: true }), not just
     // HTTP 200 — a 200 with ok:false or a non-JSON body is treated as failure.
     try {
-      const json = JSON.parse(detail) as { ok?: boolean };
-      if (json.ok === true) {
-        return true;
+      const json = JSON.parse(detail) as DoPostResult;
+      if (json.ok !== true) {
+        console.error(
+          "[whatsapp] Apps Script returned ok!==true:",
+          detail.slice(0, 200),
+        );
       }
-      console.error(
-        "[whatsapp] Apps Script returned ok!==true:",
-        detail.slice(0, 200),
-      );
-      return false;
+      return json;
     } catch {
       console.error(
         "[whatsapp] Apps Script response not JSON:",
         detail.slice(0, 200),
       );
-      return false;
+      return null;
     }
   } catch (err) {
     console.error("[whatsapp] Apps Script write error:", err);
-    return false;
+    return null;
   }
 }
 
