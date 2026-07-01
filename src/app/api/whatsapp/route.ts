@@ -281,6 +281,18 @@ async function sendWhatsApp(to: string, bodyText: string): Promise<void> {
     return;
   }
 
+  // Observability before the send — never log the full token (prefix + length only).
+  console.log(
+    "[whatsapp] sending reply:",
+    JSON.stringify({
+      to,
+      phoneNumberId,
+      tokenPresent: true,
+      tokenLength: token.length,
+      tokenPrefix: token.slice(0, 6),
+    }),
+  );
+
   try {
     const res = await fetch(
       `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
@@ -298,9 +310,47 @@ async function sendWhatsApp(to: string, bodyText: string): Promise<void> {
         }),
       },
     );
+
+    // Always read + log the full body: Graph can return an error INSIDE a 200,
+    // so success-path logging is exactly the blind spot we are diagnosing.
+    const detail = await res.text();
+
     if (!res.ok) {
-      const detail = await res.text();
-      console.error("[whatsapp] send failed:", res.status, detail.slice(0, 200));
+      console.error(
+        "[whatsapp] send failed:",
+        res.status,
+        res.statusText,
+        detail,
+      );
+      return;
+    }
+
+    let messageId: string | undefined;
+    let apiError: unknown;
+    try {
+      const json = JSON.parse(detail) as {
+        messages?: Array<{ id?: string }>;
+        error?: unknown;
+      };
+      messageId = json.messages?.[0]?.id;
+      apiError = json.error;
+    } catch {
+      // Non-JSON 200 body — keep the raw text for inspection below.
+    }
+
+    if (apiError) {
+      // 200 status but Graph reported an error in the payload.
+      console.error(
+        "[whatsapp] send returned 200 with an error payload:",
+        detail,
+      );
+    } else {
+      console.log(
+        "[whatsapp] send ok:",
+        res.status,
+        JSON.stringify({ messageId: messageId ?? null }),
+        detail,
+      );
     }
   } catch (err) {
     console.error("[whatsapp] send error:", err);
