@@ -26,6 +26,12 @@ type DataTableProps<T> = {
   pageSize?: number;
 };
 
+function sameSort(a: SortState, b: SortState): boolean {
+  if (!a && !b) return true;
+  if (!a || !b) return false;
+  return a.key === b.key && a.dir === b.dir;
+}
+
 function pageList(current: number, total: number): (number | "ellipsis")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   if (current <= 4) return [1, 2, 3, 4, 5, "ellipsis", total];
@@ -50,6 +56,8 @@ export default function DataTable<T>({
 
   const expandable = Boolean(renderExpanded);
   const colCount = columns.length + (expandable ? 1 : 0);
+  const initial: SortState = initialSort ?? null;
+  const sortChanged = !sameSort(sort, initial);
 
   const sorted = useMemo(() => {
     if (!sort) return rows;
@@ -100,6 +108,11 @@ export default function DataTable<T>({
     setPage(1);
   }
 
+  function resetSort() {
+    setSort(initial);
+    setPage(1);
+  }
+
   function toggleExpand(key: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -110,8 +123,17 @@ export default function DataTable<T>({
   }
 
   return (
-    <div className={styles.wrap} ref={wrapRef}>
-      <div className={styles.scrollX}>
+    <div className={styles.root}>
+      {sortChanged && (
+        <div className={styles.toolbar}>
+          <button type="button" className={styles.clearSort} onClick={resetSort}>
+            Poništi sortiranje
+          </button>
+        </div>
+      )}
+
+      <div className={styles.wrap} ref={wrapRef}>
+        <div className={styles.scrollX}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -152,9 +174,9 @@ export default function DataTable<T>({
                       >
                         <span>{col.header}</span>
                         {dir ? (
-                          <MaskIcon
-                            name={dir === "asc" ? "Collapse" : "Expand"}
-                            size={16}
+                          <span
+                            className={`${styles.sortTri} ${dir === "asc" ? styles.sortAsc : styles.sortDesc}`}
+                            aria-hidden="true"
                           />
                         ) : (
                           <MaskIcon name="sort" className={styles.sortIdle} size={16} />
@@ -296,6 +318,7 @@ export default function DataTable<T>({
           </button>
         </nav>
       )}
+      </div>
     </div>
   );
 }
