@@ -53,7 +53,11 @@ export default async function Home() {
           </div>
 
           <div className={styles.grid}>
-            <Card title="Ključni pokazatelji" className={styles.kpiCardFull}>
+            <Card
+              title="Ključni pokazatelji"
+              className={styles.kpiCardFull}
+              scroll={false}
+            >
               <div className={styles.kpiRow}>
                 <KpiCard label="Prihod (mjesec)" value={eur.format(prihod)} />
                 <KpiCard label="Narudžbe (mjesec)" value={String(broj)} />
@@ -66,21 +70,25 @@ export default async function Home() {
               </div>
             </Card>
 
-            <Card title="Za kontakt" eyebrow="Auto-podsjetnik">
-              <ZaKontakt clients={zaKontaktKlijenti} />
-            </Card>
+            <div className={styles.col}>
+              <Card title="Za kontakt" eyebrow="Auto-podsjetnik">
+                <ZaKontakt clients={zaKontaktKlijenti} />
+              </Card>
 
-            <Card title="Prihod" eyebrow="Zadnjih 6 mjeseci">
-              <Prihod mjeseci={mjeseci} regije={regije} />
-            </Card>
+              <Card title="Katalog" eyebrow="Po marži">
+                <Katalog kategorije={kategorije} />
+              </Card>
+            </div>
 
-            <Card title="Katalog" eyebrow="Po marži">
-              <Katalog kategorije={kategorije} />
-            </Card>
+            <div className={styles.col}>
+              <Card title="Prihod" eyebrow="Zadnjih 6 mjeseci">
+                <Prihod mjeseci={mjeseci} regije={regije} />
+              </Card>
 
-            <Card title="Zadnje narudžbe" eyebrow="Uživo">
-              <ZadnjeNarudzbe narudzbe={Narudzbe} />
-            </Card>
+              <Card title="Zadnje narudžbe" eyebrow="Uživo" scroll={false}>
+                <ZadnjeNarudzbe narudzbe={Narudzbe} />
+              </Card>
+            </div>
           </div>
         </Container>
       </main>

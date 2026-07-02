@@ -5,15 +5,39 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: var(--space-6);
+  overflow: hidden; /* clip the sticky header + scrolling body to the rounded corners */
+}
+
+/* Scroll region: caps tall cards and scrolls their body; short cards keep their
+   natural height (max-height doesn't reserve space). The sticky header lives in
+   HERE (not on .card) so it sticks to the card's own scroll, not the page. */
+.scroll {
+  max-height: 510px;
+  overflow-y: auto;
+}
+
+.noScroll {
+  max-height: none;
+  overflow-y: visible;
 }
 
 .head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-2);
+  padding: var(--space-6) var(--space-6) var(--space-3);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Non-scrolling cards (KPI, or organisms with their own scroll): the header
+   must NOT stick — otherwise it would stick to the PAGE scroll, not a card. */
+.noScroll .head {
+  position: static;
 }
 
 .title {
@@ -24,4 +48,8 @@
   @include eyebrow;
   margin-left: auto;
   white-space: nowrap;
+}
+
+.body {
+  padding: var(--space-3) var(--space-6) var(--space-6);
 }

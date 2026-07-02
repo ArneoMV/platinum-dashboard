@@ -2,7 +2,8 @@
 
 .wrap {
   width: 100%;
-  overflow-x: auto;
+  max-height: 510px;
+  overflow: auto;
 }
 
 .table {
@@ -21,6 +22,17 @@
 
 .table tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* Sticky column labels within the table's own scroll region. Sits below the
+   (static) card title, so both stay visible — no fragile pixel offset needed. */
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  /* collapsed borders drop under a sticky th in Chromium — keep the divider */
+  box-shadow: inset 0 -1px 0 var(--line);
 }
 
 .thButton {

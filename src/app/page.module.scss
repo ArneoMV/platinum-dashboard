@@ -30,12 +30,21 @@
 
   @include mq-md {
     grid-template-columns: repeat(2, 1fr);
+    align-items: start; /* independent column heights — no row-locked gaps */
   }
 }
 
 .kpiCardFull {
   grid-column: 1 / -1;
   border-radius: var(--radius-xl);
+}
+
+/* Each column stacks its cards independently (KPI spans both above). */
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0; /* let inner tables scroll instead of widening the column */
 }
 
 .kpiRow {
