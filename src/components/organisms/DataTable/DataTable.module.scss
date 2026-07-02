@@ -1,0 +1,201 @@
+@use "../../../styles/mixins" as *;
+
+.wrap {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden; /* clip header bg + rounded corners */
+}
+
+.scrollX {
+  overflow-x: auto;
+}
+
+.table {
+  @include body-medium-regular;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.table thead th {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  padding: var(--space-4) var(--space-6);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.chevronCol {
+  width: 1%;
+}
+
+.th.right {
+  text-align: right;
+}
+
+.th.center {
+  text-align: center;
+}
+
+.thButton,
+.thStatic {
+  @include heading-xxs;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-500);
+}
+
+.thButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.thButton:hover {
+  color: var(--ink-900);
+}
+
+.thActive {
+  color: var(--accent);
+}
+
+.sortIdle {
+  color: var(--ink-300);
+}
+
+/* ── Body ───────────────────────────────────────────────── */
+.table tbody td {
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.cell.right {
+  text-align: right;
+}
+
+.cell.center {
+  text-align: center;
+}
+
+.row:hover td {
+  background: var(--surface-2);
+}
+
+.rowOpen td {
+  background: var(--surface-2);
+}
+
+.chevronCell {
+  width: 1%;
+  padding-right: 0;
+  vertical-align: middle;
+}
+
+.chevronBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.chevronBtn:hover {
+  background: var(--surface-2);
+  color: var(--ink-900);
+}
+
+.chevronOpen,
+.chevronOpen:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ── Expanded panel ─────────────────────────────────────── */
+.expandCell {
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.expandPanel {
+  padding: var(--space-4) var(--space-6) var(--space-6) var(--space-8);
+  border-left: 3px solid var(--accent);
+}
+
+.empty {
+  @include body-medium-regular;
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  color: var(--ink-500);
+}
+
+/* ── Pager ──────────────────────────────────────────────── */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--line);
+}
+
+.pagerBtn,
+.pageNum {
+  @include body-medium-regular;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.pagerBtn {
+  color: var(--ink-500);
+}
+
+.pagerBtn:hover:not(:disabled),
+.pageNum:hover {
+  background: var(--surface-2);
+  color: var(--ink-900);
+}
+
+.pagerBtn:disabled {
+  color: var(--ink-300);
+  cursor: default;
+}
+
+.pageActive,
+.pageActive:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.ellipsis {
+  min-width: 32px;
+  text-align: center;
+  color: var(--ink-500);
+}
