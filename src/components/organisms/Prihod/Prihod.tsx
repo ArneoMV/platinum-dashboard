@@ -81,11 +81,11 @@ export default function Prihod({ mjeseci, regije }: PrihodProps) {
                   cursor={{ fill: "var(--accent-soft)" }}
                   formatter={(v) => [eur0.format(Number(v)), "Prihod"]}
                 />
-                <Bar dataKey="iznos" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                <Bar dataKey="iznos" radius={[7, 7, 0, 0]} isAnimationActive={false}>
                   {podaci.map((d, i) => (
                     <Cell
                       key={d.mjesec}
-                      fill={i === podaci.length - 1 ? "var(--accent)" : "var(--ink-300)"}
+                      fill={i === podaci.length - 1 ? "var(--accent)" : "var(--accent-tint)"}
                     />
                   ))}
                 </Bar>

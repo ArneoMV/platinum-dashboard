@@ -46,7 +46,7 @@
   display: block;
   height: 8px;
   border-radius: 999px;
-  background: var(--surface);
+  background: var(--surface-2);
   border: 1px solid var(--line);
   overflow: hidden;
 }
@@ -54,7 +54,7 @@
 .trakaFill {
   display: block;
   height: 100%;
-  background: var(--sage);
+  background: var(--accent);
 }
 
 .prazno {
