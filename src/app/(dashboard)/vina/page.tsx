@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 
 import PageHeading from "@/components/molecules/PageHeading/PageHeading";
+import VinaTable from "@/components/organisms/VinaTable/VinaTable";
 import { getBaza } from "@/lib/data";
-
-import styles from "../subpage.module.scss";
 
 export const metadata: Metadata = {
   title: "Vina — Platinum vina",
@@ -15,10 +14,7 @@ export default async function VinaPage() {
   return (
     <>
       <PageHeading title="Vina" subtitle="Pregled vina" />
-      <p className={styles.count}>
-        <span className="num">{Vina.length}</span> vina
-      </p>
-      <p className={styles.note}>Tablica dolazi uskoro.</p>
+      <VinaTable rows={Vina} />
     </>
   );
 }
