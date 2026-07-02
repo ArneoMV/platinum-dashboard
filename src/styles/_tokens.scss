@@ -1,18 +1,26 @@
 :root {
-  /* color */
-  --bg: #ffffff;
-  --surface: #fafaf9;
-  --line: #e7e4e0;
-  --ink-900: #141414;
-  --ink-700: #3d3a37;
-  --ink-500: #6b6764;
-  --ink-300: #a8a4a0;
-  --accent: #7c1d2e;        /* claret */
-  --accent-soft: #f4eaec;
-  --rust: #b5532a;          /* attention / za kontakt */
-  --sage: #5e7355;          /* positive / aktivno */
+  /* color — Airtable-derived palette (see DESIGN.md) */
+  --bg: #faf5e8;            /* warm parchment canvas */
+  --surface: #ffffff;      /* white cards on parchment */
+  --surface-2: #f8fafc;    /* secondary/nested surface */
+  --line: #e0e2e6;         /* cool hairline border */
+  --ink-900: #181d26;      /* dark slate-blue — headings/primary */
+  --ink-700: #333840;      /* body text */
+  --ink-500: #41454d;      /* muted text */
+  --ink-300: #8a9099;      /* faint/disabled (derived light slate) */
+  --accent: #1b61c9;       /* ocean blue — interactive/illustration only */
+  --accent-soft: #e8f0fc;  /* ocean-blue tint (hover/selected wash) */
+  --rust: #aa2d00;         /* attention / za kontakt */
+  --sage: #2f7a3e;         /* positive / aktivno */
 
-  /* type (font vars set on <body> via next/font) */
+  /* vivid accent set — charts & badges only (never text/UI chrome) */
+  --viz-1: #254fad;
+  --viz-2: #aa2d00;
+  --viz-3: #0a2e00;
+  --viz-4: #fa91e0;
+  --viz-5: #fcb42a;
+
+  /* type (font vars set on <html> via next/font) */
   --font-serif: var(--font-pt-serif), Georgia, serif;
   --font-sans:  var(--font-open-sans), system-ui, sans-serif;
 
@@ -30,13 +38,13 @@
   /* deprecated ad-hoc scale — kept as aliases for not-yet-migrated atoms */
   --text-xs: .75rem; --text-sm: .8125rem; --text-base: .9375rem;
 
-  /* spacing (named to avoid any tooling clash) */
+  /* spacing (named to avoid any tooling clash) — 8px base */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+  --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px; --space-16: 64px;
 
   /* radius + elevation */
-  --radius-sm: 4px; --radius: 8px; --radius-lg: 14px;
-  --shadow-card: 0 1px 2px rgba(20,20,20,.04), 0 1px 3px rgba(20,20,20,.05);
+  --radius-sm: 8px; --radius: 12px; --radius-lg: 16px; --radius-xl: 24px;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.05), 0 2px 6px rgba(0,0,0,.08);
   --header-h: 64px;
   --maxw: 1200px;
 }
