@@ -2,7 +2,7 @@ import 'server-only';
 
 import type { Baza } from './types';
 
-export async function getBaza(): Promise<Baza> {
+export async function getBaza(opts?: { fresh?: boolean }): Promise<Baza> {
   const url = process.env.APPS_SCRIPT_URL;
   const token = process.env.APPS_SCRIPT_TOKEN;
 
@@ -13,7 +13,12 @@ export async function getBaza(): Promise<Baza> {
   }
 
   // Apps Script 302-redirects to googleusercontent.com; fetch follows it automatically.
-  const res = await fetch(`${url}?token=${token}`, { next: { revalidate: 60 } });
+  // `fresh` bypasses the data cache (used by /api/baza polling); the page keeps its
+  // 60s ISR revalidate so first paint stays statically cached.
+  const res = await fetch(
+    `${url}?token=${token}`,
+    opts?.fresh ? { cache: 'no-store' } : { next: { revalidate: 60 } },
+  );
 
   if (!res.ok) {
     throw new Error(
