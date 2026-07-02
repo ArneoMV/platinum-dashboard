@@ -1,9 +1,4 @@
-@use "../styles/mixins" as *;
-
-.main {
-  padding-top: var(--header-h);
-  padding-bottom: var(--space-16);
-}
+@use "../../styles/mixins" as *;
 
 .syncWrap {
   padding-top: var(--space-6);

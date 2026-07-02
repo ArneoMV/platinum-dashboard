@@ -1,0 +1,15 @@
+@use "../../../styles/mixins" as *;
+
+.pageHead {
+  padding-block: var(--space-4) var(--space-6);
+}
+
+.title {
+  @include headline-m;
+}
+
+.subtitle {
+  @include body-medium-regular;
+  margin-top: var(--space-2);
+  color: var(--ink-500);
+}

@@ -1,0 +1,23 @@
+@use "../../styles/mixins" as *;
+
+.nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.link {
+  @include body-medium-semibold;
+  color: var(--ink-700);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.link:hover {
+  color: var(--ink-900);
+}
+
+.active {
+  color: var(--accent);
+  font-weight: 700;
+}

@@ -127,11 +127,7 @@ export default function DashboardLive({ initialData }: DashboardLiveProps) {
       </div>
 
       <div className={styles.grid}>
-        <Card
-          title="Ključni pokazatelji"
-          className={styles.kpiCardFull}
-          scroll={false}
-        >
+        <Card title="Ključni pokazatelji" className={styles.kpiCardFull}>
           <div className={styles.kpiRow}>
             <KpiCard label="Prihod (mjesec)" value={eur.format(d.prihod)} />
             <KpiCard label="Narudžbe (mjesec)" value={String(d.broj)} />
@@ -159,7 +155,7 @@ export default function DashboardLive({ initialData }: DashboardLiveProps) {
             <Prihod mjeseci={d.mjeseci} regije={d.regije} />
           </Card>
 
-          <Card title="Zadnje narudžbe" eyebrow="Uživo" scroll={false}>
+          <Card title="Zadnje narudžbe" eyebrow="Uživo">
             <ZadnjeNarudzbe narudzbe={d.narudzbe} />
           </Card>
         </div>
