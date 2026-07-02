@@ -96,25 +96,13 @@
   color: var(--accent);
 }
 
+/* Single sort glyph, color-only state (no direction arrows). */
 .sortIdle {
   color: var(--ink-300);
 }
 
-/* Active-sort direction: CSS triangle in the ocean accent — distinct from the
-   Collapse/Expand chevrons reserved for row expand. */
-.sortTri {
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-}
-
-.sortAsc {
-  border-bottom: 5px solid var(--accent); /* ▲ */
-}
-
-.sortDesc {
-  border-top: 5px solid var(--accent); /* ▼ */
+.sortActive {
+  color: var(--accent);
 }
 
 /* ── Body ───────────────────────────────────────────────── */

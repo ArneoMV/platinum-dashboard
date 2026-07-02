@@ -173,14 +173,11 @@ export default function DataTable<T>({
                         onClick={() => onSort(col)}
                       >
                         <span>{col.header}</span>
-                        {dir ? (
-                          <span
-                            className={`${styles.sortTri} ${dir === "asc" ? styles.sortAsc : styles.sortDesc}`}
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <MaskIcon name="sort" className={styles.sortIdle} size={16} />
-                        )}
+                        <MaskIcon
+                          name="sort"
+                          className={dir ? styles.sortActive : styles.sortIdle}
+                          size={16}
+                        />
                       </button>
                     ) : (
                       <span className={styles.thStatic}>{col.header}</span>
