@@ -18,28 +18,15 @@
   color: var(--ink-500);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-6);
-
-  @include mq-md {
-    grid-template-columns: repeat(2, 1fr);
-    align-items: start; /* independent column heights — no row-locked gaps */
-  }
-}
-
-.kpiCardFull {
-  grid-column: 1 / -1;
-  border-radius: var(--radius-xl);
-}
-
-/* Each column stacks its cards independently (KPI spans both above). */
-.col {
+/* Vertical stack of the overview rows. */
+.stack {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  min-width: 0; /* let inner tables scroll instead of widening the column */
+}
+
+.kpiCardFull {
+  border-radius: var(--radius-xl);
 }
 
 .kpiRow {
@@ -49,5 +36,28 @@
 
   @include mq-md {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Two main visuals side-by-side (stack on mobile). */
+.visuals {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+
+  @include mq-md {
+    grid-template-columns: repeat(2, 1fr);
+    align-items: start;
+  }
+}
+
+/* Three compact insight cards (1-col mobile → 3-col desktop). */
+.insights {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+
+  @include mq-md {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

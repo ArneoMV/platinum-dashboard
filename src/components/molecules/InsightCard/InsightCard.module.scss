@@ -1,0 +1,43 @@
+@use "../../../styles/mixins" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6);
+}
+
+.label {
+  @include eyebrow;
+}
+
+.primary {
+  @include heading-s;
+  color: var(--ink-900);
+}
+
+.secondary {
+  @include body-medium-regular;
+  color: var(--ink-500);
+}
+
+.link {
+  @include body-medium-semibold;
+  margin-top: auto; /* bottom-align the link across cards of unequal height */
+  padding-top: var(--space-2);
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.arrow {
+  margin-left: var(--space-1);
+}

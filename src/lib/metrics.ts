@@ -145,3 +145,55 @@ export function marzaPoKategoriji(
     broj: g.broj,
   }));
 }
+
+// ── Home overview helpers ───────────────────────────────────────────────────
+
+// The n wines with the lowest stock, ascending. No threshold — just the lowest n.
+export function vinaNajnizaZaliha(
+  v: Vino[],
+  n = 3,
+): { naziv: string; zaliha: number }[] {
+  return [...v]
+    .sort((a, b) => a.zaliha - b.zaliha)
+    .slice(0, n)
+    .map((vino) => ({ naziv: vino.naziv, zaliha: vino.zaliha }));
+}
+
+// The single most recent order by datum; null when there are none.
+export function zadnjaNarudzba(
+  n: Narudzba[],
+): { klijent_naziv: string; iznos: number; datum: string } | null {
+  let best: Narudzba | null = null;
+  let bestTs = -Infinity;
+  for (const o of n) {
+    const ts = new Date(o.datum).getTime();
+    if (!Number.isNaN(ts) && ts > bestTs) {
+      bestTs = ts;
+      best = o;
+    }
+  }
+  if (!best) return null;
+  return { klijent_naziv: best.klijent_naziv, iznos: best.iznos, datum: best.datum };
+}
+
+// Zagreb calendar day (YYYY-MM-DD) for a date — tz-explicit so "danas" is correct
+// even when computed on a UTC server (SSR).
+function zagrebDan(d: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Zagreb",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
+// Count of orders whose datum is today in Europe/Zagreb.
+export function brojNarudzbiDanas(n: Narudzba[]): number {
+  const danas = zagrebDan(new Date());
+  let broj = 0;
+  for (const o of n) {
+    const d = new Date(o.datum);
+    if (!Number.isNaN(d.getTime()) && zagrebDan(d) === danas) broj += 1;
+  }
+  return broj;
+}
